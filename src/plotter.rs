@@ -1,8 +1,7 @@
+use crate::utils;
 use plotters::prelude::*;
+use utils::{random_number, distance};
 
-pub fn distance(a: (f32, f32), b: (f32, f32)) -> f64 {
-    (((b.0 - a.0).powi(2) + (b.1 - a.1).powi(2)) as f64).sqrt()
-}
 pub fn mean(numbers: Vec<f32>) -> f32 {
     numbers.iter().fold(0.0, |acc, value| acc + value)
 }
@@ -29,7 +28,6 @@ pub fn draw(points: Vec<(f32, f32)>) -> Result<(), Box<dyn std::error::Error>> {
         // We can also change the format of the label text
         .y_label_formatter(&|x| format!("{:.3}", x))
         .draw()?;
-    println!("Distance {}", distance((2.0, 2.0), (4.0, 7.0)));
 
     // And we can draw something in the drawing area
     chart.draw_series(LineSeries::new(points.clone(), &RED))?;
