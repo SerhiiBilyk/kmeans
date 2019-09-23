@@ -2,9 +2,7 @@ use crate::utils;
 use plotters::prelude::*;
 use utils::{random_number, distance};
 
-pub fn mean(numbers: Vec<f32>) -> f32 {
-    numbers.iter().fold(0.0, |acc, value| acc + value)
-}
+
 pub fn draw(points: Vec<(f32, f32)>) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new("./5.png", (640, 480)).into_drawing_area();
     root.fill(&WHITE);

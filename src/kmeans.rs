@@ -1,7 +1,7 @@
 use crate::utils;
-use utils::{distance, random_number, mean};
+use utils::{distance, mean, random_number};
 
-type Point = [f32; 2];
+pub type Point = [f32; 2];
 
 #[derive(Debug)]
 pub struct Range {
@@ -9,13 +9,15 @@ pub struct Range {
     max: f32,
 }
 
+const DIMENSIONALITY: usize = 2;
+
 #[derive(Debug)]
 pub struct KlusterMeans {
     klusters: i8,
     points: Vec<Point>,
     iterations: i32,
     centroid_assignments: Vec<i32>,
-    centroids: Vec<Point>,
+    pub centroids: Vec<Point>,
 }
 
 impl KlusterMeans {
@@ -48,21 +50,19 @@ impl KlusterMeans {
     }
 
     pub fn get_all_dimension_ranges(&self) -> Vec<Range> {
-        let dimensionality = self.get_dimensionality();
-        let mut ranges: Vec<Range> = Vec::with_capacity(dimensionality);
-        for i in 0..dimensionality {
+        let mut ranges: Vec<Range> = Vec::with_capacity(DIMENSIONALITY);
+        for i in 0..DIMENSIONALITY {
             ranges.push(self.get_range_for_dimension(i))
         }
         ranges
     }
 
     pub fn init_random_centroids(&mut self) -> Vec<Point> {
-        let dimensionality = self.get_dimensionality();
         let dimension_ranges = self.get_all_dimension_ranges();
         let mut centroids: Vec<Point> = Vec::with_capacity(self.klusters as usize);
         for _ in 0..self.klusters {
             let mut point: Point = [0.0, 0.0];
-            for dimension in 0..dimensionality {
+            for dimension in 0..DIMENSIONALITY {
                 let Range { min, max } = dimension_ranges[dimension];
                 point[dimension] = random_number::<f32>(min, max);
             }
@@ -88,6 +88,8 @@ impl KlusterMeans {
         for index in 0..self.centroids.len() {
             let centroid = self.centroids[index];
             let distance_to_centroid = distance(self.points[point_index], centroid);
+            println!("Index {:?}", self.centroids);
+
             if min_distance == 0.0 || distance_to_centroid < min_distance {
                 min_distance = distance_to_centroid;
                 assigned_centroid = Some(index as i32);
@@ -108,11 +110,11 @@ impl KlusterMeans {
         let mut was_any_reassigned = false;
         for index in 0..self.points.len() {
             let was_reassigned = self.assign_point_to_centroid(index);
-            if was_reassigned {
-                was_any_reassigned = true;
+            if was_reassigned == true {
+                return true;
             }
         }
-        was_any_reassigned
+        false
     }
     pub fn get_points_for_centroid(&self, centroid_index: usize) -> Vec<Point> {
         let mut points: Vec<Point> = vec![];
@@ -126,13 +128,36 @@ impl KlusterMeans {
         }
         points
     }
-    pub fn update_centroid_location(&self, index:usize){
+    pub fn update_centroid_location(&mut self, index: usize) -> Point {
         let centroid_points = self.get_points_for_centroid(index);
-        let dimensionality = self.get_dimensionality();
-        let centroid = vec![];
-        for dimension in 0..dimensionality {
-            let map = centroid_points.iter().map(|elem|elem[dimension])
-            centroid.push()
+        let mut centroid: Point = [0.0, 0.0];
+
+        for dimension in 0..DIMENSIONALITY {
+            centroid[dimension] = mean(
+                centroid_points
+                    .iter()
+                    .map(|elem| elem[dimension])
+                    .collect::<Vec<f32>>(),
+            );
+        }
+        self.centroids[index] = centroid;
+        centroid
+    }
+    pub fn update_centroid_locations(&mut self) {
+        for index in 0..self.centroids.len() {
+            self.update_centroid_location(index);
+        }
+    }
+    pub fn run(&mut self) {
+        let mut iteration = 0;
+        loop {
+            let did_assignments_change = self.assign_points_to_centroids();
+            self.update_centroid_locations();
+            iteration += 1;
+
+            if iteration == 2 {
+                break;
+            }
         }
     }
     pub fn reset(&mut self) {
