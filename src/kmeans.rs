@@ -30,6 +30,17 @@ impl KlusterMeans {
             centroids: vec![],
         }
     }
+    pub fn to_tuples(&self, centroids: Vec<Point>) -> Vec<(f32, f32)> {
+        let v: Vec<(f32, f32)> = vec![];
+        centroids
+            .iter()
+            .map(|elem| {
+                let x1 = elem[0];
+                let x2 = elem[1];
+                (x1, x2)
+            })
+            .collect::<Vec<(f32, f32)>>()
+    }
     pub fn get_dimensionality(&self) -> usize {
         self.points[0].len()
     }
@@ -75,14 +86,12 @@ impl KlusterMeans {
 
     pub fn set_centroid(&mut self, index: usize, value: i32) -> bool {
         match self.centroid_exist(index) {
-            None => {
-                self.centroid_assignments[index] = value;
-                true
-            }
             Some(val) => {
-                self.centroid_assignments[index] = val;
+                self.centroid_assignments[index] = value;
+
                 true
             }
+            None => false,
         }
     }
 
@@ -98,7 +107,6 @@ impl KlusterMeans {
         let last_assigned = self.centroid_exist(point_index);
         let mut min_distance = 0.0;
         let mut assigned_centroid: Option<i32> = None;
-        println!("length {}", self.centroids.len());
         for index in 0..self.centroids.len() {
             let centroid = self.centroids[index];
             let distance_to_centroid = distance(self.points[point_index], centroid);
@@ -111,9 +119,7 @@ impl KlusterMeans {
         // println!("assigned_centroid {:?}", &assigned_centroid);
         // println!("last_assigned {:?}", point_index);
         if let Some(centroid) = assigned_centroid {
-            println!("before {:?}", self.centroid_assignments);
             self.set_centroid(point_index, centroid);
-            println!("after");
 
             if let Some(last) = last_assigned {
                 return last != centroid;
@@ -155,8 +161,10 @@ impl KlusterMeans {
                 .map(|elem| elem[dimension])
                 .collect::<Vec<f32>>();
             let debug = points.clone();
+            let means = mean(points);
 
-            centroid[dimension] = mean(points);
+            centroid[dimension] = means;
+            println!("CENTROID  {}", means);
         }
         self.centroids[index] = centroid;
         centroid
@@ -169,7 +177,6 @@ impl KlusterMeans {
     pub fn run(&mut self) {
         let mut iteration = 0;
         loop {
-            println!("self.centroid_assignments {:?}", &self.centroid_assignments);
             let did_assignments_change = self.assign_points_to_centroids();
             self.update_centroid_locations();
             iteration += 1;

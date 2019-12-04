@@ -1,9 +1,11 @@
 use crate::utils;
 use plotters::prelude::*;
-use utils::{random_number, distance};
+use utils::{distance, random_number};
 
-
-pub fn draw(points: Vec<(f32, f32)>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn draw(
+    points: Vec<(f32, f32)>,
+    second: Vec<(f32, f32)>,
+) -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new("./5.png", (640, 480)).into_drawing_area();
     root.fill(&WHITE);
     let root = root.margin(10, 10, 10, 10);
@@ -31,6 +33,14 @@ pub fn draw(points: Vec<(f32, f32)>) -> Result<(), Box<dyn std::error::Error>> {
     chart.draw_series(LineSeries::new(points.clone(), &RED))?;
     // Similarly, we can draw point series
     chart.draw_series(PointSeries::of_element(points, 5, &RED, &|c, s, st| {
+        return EmptyElement::at(c)    // We want to construct a composed element on-the-fly
+            + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
+            + Text::new(format!("{:?}", c), (10, 0), ("Arial", 10).into_font());
+    }))?;
+
+    chart.draw_series(LineSeries::new(second.clone(), &BLUE))?;
+    // Similarly, we can draw point series
+    chart.draw_series(PointSeries::of_element(second, 5, &BLUE, &|c, s, st| {
         return EmptyElement::at(c)    // We want to construct a composed element on-the-fly
             + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
             + Text::new(format!("{:?}", c), (10, 0), ("Arial", 10).into_font());

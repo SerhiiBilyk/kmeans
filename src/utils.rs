@@ -1,7 +1,13 @@
 use rand::{thread_rng, Rng};
 
 pub fn mean(numbers: Vec<f32>) -> f32 {
-    numbers.iter().fold(0.0, |acc, value| acc + value) / numbers.len() as f32
+    let result = numbers.iter().fold(0.0, |acc, value| acc + value);
+    println!("numbers {:?}", result);
+    if numbers.len() == 0 {
+        return result;
+    }
+
+    return result / numbers.len() as f32;
 }
 
 pub fn distance(a: [f32; 2], b: [f32; 2]) -> f64 {
