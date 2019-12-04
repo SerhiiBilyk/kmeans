@@ -2,7 +2,6 @@ use rand::{thread_rng, Rng};
 
 pub fn mean(numbers: Vec<f32>) -> f32 {
     let result = numbers.iter().fold(0.0, |acc, value| acc + value);
-    println!("numbers {:?}", result);
     if numbers.len() == 0 {
         return result;
     }

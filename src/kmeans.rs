@@ -85,6 +85,11 @@ impl KlusterMeans {
     }
 
     pub fn set_centroid(&mut self, index: usize, value: i32) -> bool {
+        println!(
+            "set_centroid  {} {}",
+            index,
+            self.centroid_assignments.len()
+        );
         match self.centroid_exist(index) {
             Some(val) => {
                 self.centroid_assignments[index] = value;
@@ -96,6 +101,11 @@ impl KlusterMeans {
     }
 
     pub fn centroid_exist(&self, index: usize) -> Option<i32> {
+        println!(
+            "centroid_exist  {} {}",
+            index,
+            self.centroid_assignments.len()
+        );
         match self.centroid_assignments.get(index) {
             Some(value) => Some(*value),
             None => None,
@@ -104,11 +114,23 @@ impl KlusterMeans {
     ///
     /// ERROR is in this method, last_assigned always None
     pub fn assign_point_to_centroid(&mut self, point_index: usize) -> bool {
+        println!(" assign_point_to_centroid {}", point_index);
         let last_assigned = self.centroid_exist(point_index);
         let mut min_distance = 0.0;
         let mut assigned_centroid: Option<i32> = None;
-        for index in 0..self.centroids.len() {
+        for index in 0..self.centroids.len() - 1 {
+            println!(
+                " assign_point_to_centroid2 {} {}",
+                index,
+                self.centroids.len()
+            );
+
             let centroid = self.centroids[index];
+            println!(
+                " assign_point_to_centroid3 {} {}",
+                point_index,
+                self.points.len()
+            );
             let distance_to_centroid = distance(self.points[point_index], centroid);
 
             if min_distance == 0.0 || distance_to_centroid < min_distance {
@@ -119,6 +141,7 @@ impl KlusterMeans {
         // println!("assigned_centroid {:?}", &assigned_centroid);
         // println!("last_assigned {:?}", point_index);
         if let Some(centroid) = assigned_centroid {
+            println!(" assign_point_to_centroid4 {}", point_index);
             self.set_centroid(point_index, centroid);
 
             if let Some(last) = last_assigned {
@@ -132,6 +155,7 @@ impl KlusterMeans {
     pub fn assign_points_to_centroids(&mut self) -> bool {
         let mut was_any_reassigned = false;
         for index in 0..self.points.len() {
+            println!("assign_points_to_centroids {} {}", index, self.points.len());
             let was_reassigned = self.assign_point_to_centroid(index);
             if was_reassigned == true {
                 return true;
@@ -142,16 +166,22 @@ impl KlusterMeans {
     pub fn get_points_for_centroid(&self, centroid_index: usize) -> Vec<Point> {
         let mut points: Vec<Point> = vec![];
         for index in 0..self.points.len() {
-            let assignment = self.centroid_exist(index);
-            if let Some(value) = assignment {
-                if value == centroid_index as i32 {
-                    points.push(self.points[index])
-                }
+            println!(
+                "get_points_for_centroid {} {}",
+                index,
+                self.centroid_assignments.len()
+            );
+
+            let assignment = self.centroid_assignments[index]; // self.centroid_exist(index);
+            if assignment == centroid_index as i32 {
+                points.push(self.points[index])
             }
         }
         points
     }
     pub fn update_centroid_location(&mut self, index: usize) -> Point {
+        println!("update_centroid_location {}", index);
+
         let centroid_points = self.get_points_for_centroid(index);
         let mut centroid: Point = [0.0, 0.0];
 
@@ -164,13 +194,14 @@ impl KlusterMeans {
             let means = mean(points);
 
             centroid[dimension] = means;
-            println!("CENTROID  {}", means);
         }
         self.centroids[index] = centroid;
         centroid
     }
     pub fn update_centroid_locations(&mut self) {
-        for index in 0..self.centroids.len() {
+        for index in 0..self.centroids.len() - 1 {
+            println!("update_centroid_locations {}", index);
+
             self.update_centroid_location(index);
         }
     }
