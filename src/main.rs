@@ -42,7 +42,8 @@ fn main() {
     // draw(vec![(0.0, 0.0), (2.0, 2.0), (4.0, 7.0)]);
 
     let mut kmeans = KlusterMeans::new(3, points);
-    kmeans.init_random_centroids();
+    let result = kmeans.init_random_centroids();
     kmeans.run();
+
     println!("Mean {:?}", kmeans.centroids);
 }
