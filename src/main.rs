@@ -1,9 +1,7 @@
 mod kmeans;
-mod plotter;
 mod utils;
 
 use kmeans::KlusterMeans;
-use plotter::draw;
 
 fn main() {
     let points = vec![
@@ -12,7 +10,6 @@ fn main() {
         [4.0, 4.0],
         [4.0, 2.0],
         [3.0, 2.0],
-        [4.0, 6.0],
         [7.0, 7.0],
         [8.0, 6.0],
         [8.0, 8.0],
@@ -28,5 +25,5 @@ fn main() {
     kmeans.init_random_centroids();
     kmeans.run();
 
-    draw(kmeans.result(), kmeans.to_tuples(double));
+    //  draw(kmeans.result(), kmeans.to_tuples(double));
 }

@@ -1,5 +1,5 @@
 use crate::utils;
-use utils::{distance, mean, random_number};
+use utils::{distance, draw, mean, random_number};
 
 pub type Point = [f32; 2];
 
@@ -167,11 +167,19 @@ impl KlusterMeans {
         }
     }
     pub fn run(&mut self) {
+        let mut index = 0;
         loop {
             let did_assignments_change = self.assign_points_to_centroids();
             self.update_centroid_locations();
+            let points = self.points.clone();
+            index += 1;
+            let pt = points.clone();
+
+            draw(self.result(), self.to_tuples(points), index);
 
             if !did_assignments_change {
+                draw(self.result(), self.to_tuples(pt), index);
+
                 break;
             }
         }
