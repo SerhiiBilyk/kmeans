@@ -56,8 +56,7 @@ impl KlusterMeans {
         self.points[0].len()
     }
     pub fn get_range_for_dimension(&self, dimension: usize) -> Range {
-        let values = self
-            .points
+        self.points
             .iter()
             .fold(Range { min: 0.0, max: 0.0 }, |acc, elem| {
                 let Range { min, max } = acc;
@@ -67,8 +66,7 @@ impl KlusterMeans {
                     min: min.min(value),
                     max: max.max(value),
                 }
-            });
-        values
+            })
     }
 
     pub fn get_all_dimension_ranges(&self) -> Vec<Range> {
@@ -125,13 +123,13 @@ impl KlusterMeans {
             self.set_centroid(point_index, centroid);
         }
 
-        return last_assigned.unwrap() != assigned_centroid.unwrap();
+        last_assigned.unwrap() != assigned_centroid.unwrap()
     }
     pub fn assign_points_to_centroids(&mut self) -> bool {
         let mut was_any_reassigned = false;
         for index in 0..self.points.len() {
             was_any_reassigned = self.assign_point_to_centroid(index);
-            if was_any_reassigned == true {
+            if was_any_reassigned {
                 return was_any_reassigned;
             }
         }
@@ -150,21 +148,17 @@ impl KlusterMeans {
     pub fn update_centroid_location(&mut self, index: usize) -> Point {
         let centroid_points = self.get_points_for_centroid(index);
         let mut centroid: Point = [0.0, 0.0];
-        // println!("centroid {:?}", centroid_points.len());
-        if centroid_points.len() != 0 {
+        if !centroid_points.is_empty() {
             for dimension in 0..DIMENSIONALITY {
                 let points = centroid_points
                     .iter()
                     .map(|elem| elem[dimension])
                     .collect::<Vec<f32>>();
-                let debug = points.clone();
                 let means = mean(points);
-                //  println!("mean {:?} {}", &means, debug.len());
                 centroid[dimension] = means;
             }
             self.centroids[index] = centroid;
         }
-
         centroid
     }
     pub fn update_centroid_locations(&mut self) {
@@ -177,7 +171,7 @@ impl KlusterMeans {
             let did_assignments_change = self.assign_points_to_centroids();
             self.update_centroid_locations();
 
-            if did_assignments_change == false {
+            if !did_assignments_change {
                 break;
             }
         }
